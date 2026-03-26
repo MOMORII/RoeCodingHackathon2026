@@ -21,7 +21,7 @@ The following information will serve to summarise project information in accorda
 - Include visual elements (charts or graphs)
 
 ### Technology Stack
-This will establish the technologies that will model our current progress, team communication, and allow us to develop our project to the fullest. This project plans to utilise a combination of JavaScript, HTML, and CSS for frontend and backend development.
+This will establish the technologies that will model our current progress, team communication, and allow us to develop our project to the fullest. This project plans to utilise a combination of JavaScript, HTML, and CSS for frontend and backend development.  MySQL will be used to save data locally on a database (DB).
 
 ### Development Approach
 We are following the 'Scrum' methodology, using GitHub Project for an easily-accessible and central point for  work to be contained.
