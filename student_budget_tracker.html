@@ -1,0 +1,249 @@
+<!-- =========================
+STUDENT BUDGET TRACKER
+Open this file in VS Code and run with Live Server
+Files included in ONE for simplicity: HTML + CSS + JS
+You can split into separate files later if you want
+========================= -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Budget Tracker</title>
+
+  <!-- =========================
+  CSS SECTION - STYLE YOUR APP HERE
+  ========================= -->
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    input, select, button {
+      padding: 10px;
+      margin: 5px;
+    }
+
+    button {
+      cursor: pointer;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      padding: 10px;
+      margin: 5px 0;
+      background: #eee;
+      display: flex;
+      justify-content: space-between;
+      border-radius: 5px;
+    }
+
+    .total {
+      font-size: 20px;
+      margin-top: 10px;
+    }
+
+    .warning {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Student Budget Tracker</h1>
+
+    <!-- =========================
+    INPUT SECTION
+    Modify inputs here (add new fields if needed)
+    ========================= -->
+
+    <input type="text" id="description" placeholder="Expense description">
+    <input type="number" id="amount" placeholder="Amount">
+
+    <!-- Category dropdown -->
+    <select id="category">
+      <option value="Food">Food</option>
+      <option value="Travel">Travel</option>
+      <option value="Bills">Bills</option>
+      <option value="Leisure">Leisure</option>
+    </select>
+
+    <button onclick="addExpense()">Add Expense</button>
+
+    <!-- =========================
+    BUDGET LIMIT SECTION
+    ========================= -->
+    <div>
+      <input type="number" id="budgetLimit" placeholder="Set Monthly Budget">
+      <button onclick="setBudget()">Set Budget</button>
+    </div>
+
+    <!-- =========================
+    EXPENSE LIST DISPLAY
+    ========================= -->
+    <ul id="expenseList"></ul>
+
+    <!-- TOTAL DISPLAY -->
+    <div class="total">
+      Total Spending: £<span id="total">0</span>
+    </div>
+
+    <!-- WARNING MESSAGE -->
+    <div id="warning" class="warning"></div>
+
+    <!-- =========================
+    SIMPLE CHART (BASIC VISUAL)
+    ========================= -->
+    <canvas id="chart" width="400" height="200"></canvas>
+
+  </div>
+
+  <!-- =========================
+  JAVASCRIPT SECTION
+  Modify logic and features here
+  ========================= -->
+
+  <script>
+    let expenses = []; // Stores all expenses
+    let total = 0; // Running total
+    let budget = 0; // Monthly budget
+
+    // =========================
+    // ADD EXPENSE FUNCTION
+    // Modify this to change how expenses are added
+    // =========================
+    function addExpense() {
+      const desc = document.getElementById("description").value;
+      const amount = parseFloat(document.getElementById("amount").value);
+      const category = document.getElementById("category").value;
+
+      if (!desc || isNaN(amount)) {
+        alert("Please enter valid details");
+        return;
+      }
+
+      const expense = { desc, amount, category };
+      expenses.push(expense);
+
+      total += amount;
+
+      displayExpenses();
+      updateTotal();
+      updateChart();
+
+      // Clear inputs
+      document.getElementById("description").value = "";
+      document.getElementById("amount").value = "";
+    }
+
+    // =========================
+    // DISPLAY EXPENSES
+    // Modify how each expense appears here
+    // =========================
+    function displayExpenses() {
+      const list = document.getElementById("expenseList");
+      list.innerHTML = "";
+
+      expenses.forEach((exp, index) => {
+        const li = document.createElement("li");
+        li.innerHTML = `${exp.desc} (£${exp.amount}) - ${exp.category} 
+          <button onclick="deleteExpense(${index})">X</button>`;
+        list.appendChild(li);
+      });
+    }
+
+    // =========================
+    // DELETE EXPENSE
+    // =========================
+    function deleteExpense(index) {
+      total -= expenses[index].amount;
+      expenses.splice(index, 1);
+
+      displayExpenses();
+      updateTotal();
+      updateChart();
+    }
+
+    // =========================
+    // UPDATE TOTAL + CHECK BUDGET
+    // =========================
+    function updateTotal() {
+      document.getElementById("total").innerText = total.toFixed(2);
+
+      const warning = document.getElementById("warning");
+
+      if (budget && total > budget) {
+        warning.innerText = "⚠ You exceeded your budget!";
+      } else {
+        warning.innerText = "";
+      }
+    }
+
+    // =========================
+    // SET BUDGET
+    // =========================
+    function setBudget() {
+      budget = parseFloat(document.getElementById("budgetLimit").value);
+      updateTotal();
+    }
+
+    // =========================
+    // SIMPLE CHART (BAR STYLE)
+    // Modify for better visuals (Chart.js recommended)
+    // =========================
+    function updateChart() {
+      const canvas = document.getElementById("chart");
+      const ctx = canvas.getContext("2d");
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      let categories = {};
+
+      // Group expenses by category
+      expenses.forEach(exp => {
+        categories[exp.category] = (categories[exp.category] || 0) + exp.amount;
+      });
+
+      let x = 10;
+
+      for (let cat in categories) {
+        let height = categories[cat];
+
+        ctx.fillStyle = "blue";
+        ctx.fillRect(x, canvas.height - height, 40, height);
+
+        ctx.fillStyle = "black";
+        ctx.fillText(cat, x, canvas.height - 5);
+
+        x += 60;
+      }
+    }
+  </script>
+</body>
+</html>
