@@ -10,73 +10,12 @@ You can split into separate files later if you want
 <head>
   <meta charset="UTF-8">
   <title>Student Budget Tracker</title>
-
-  <!-- =========================
-  CSS SECTION - STYLE YOUR APP HERE
-  ========================= -->
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f8;
-      margin: 0;
-      padding: 20px;
-    }
-
-    h1 {
-      text-align: center;
-    }
-
-    .container {
-      max-width: 800px;
-      margin: auto;
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-
-    input, select, button {
-      padding: 10px;
-      margin: 5px;
-    }
-
-    button {
-      cursor: pointer;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 5px;
-    }
-
-    ul {
-      list-style: none;
-      padding: 0;
-    }
-
-    li {
-      padding: 10px;
-      margin: 5px 0;
-      background: #eee;
-      display: flex;
-      justify-content: space-between;
-      border-radius: 5px;
-    }
-
-    .total {
-      font-size: 20px;
-      margin-top: 10px;
-    }
-
-    .warning {
-      color: red;
-      font-weight: bold;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-
 <body>
   <div class="container">
-    <h1>Student Budget Tracker</h1>
+    <h1>STUDENT BUDGET TRACKER</h1>
 
     <!-- =========================
     INPUT SECTION
@@ -101,14 +40,17 @@ You can split into separate files later if you want
     ========================= -->
     <div>
       <input type="number" id="budgetLimit" placeholder="Set Monthly Budget">
-      <button onclick="setBudget()">Set Budget</button>
+      <button onclick="setBudget()">SET BUDGET</button>
     </div>
 
-    <!-- =========================
-    EXPENSE LIST DISPLAY
+     <!-- =========================
+    SIMPLE CHART (BASIC VISUAL)
     ========================= -->
-    <ul id="expenseList"></ul>
+    <canvas id="chart" width="400" height="200"></canvas>
 
+    <!-- =========================
+    TOTAL SPENDING DISPLAY + WARNING
+    ========================= -->
     <!-- TOTAL DISPLAY -->
     <div class="total">
       Total Spending: £<span id="total">0</span>
@@ -118,10 +60,9 @@ You can split into separate files later if you want
     <div id="warning" class="warning"></div>
 
     <!-- =========================
-    SIMPLE CHART (BASIC VISUAL)
+    EXPENSE LIST DISPLAY
     ========================= -->
-    <canvas id="chart" width="400" height="200"></canvas>
-
+    <ul id="expenseList"></ul>
   </div>
 
   <!-- =========================
@@ -212,37 +153,56 @@ You can split into separate files later if you want
       budget = parseFloat(document.getElementById("budgetLimit").value);
       updateTotal();
     }
+    // =========================
+    // CHART.JS VERSION (REPLACE OLD CANVAS)
+    // =========================
+    let chart;
 
-    // =========================
-    // SIMPLE CHART (BAR STYLE)
-    // Modify for better visuals (Chart.js recommended)
-    // =========================
     function updateChart() {
-      const canvas = document.getElementById("chart");
-      const ctx = canvas.getContext("2d");
-
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const ctx = document.getElementById("chart").getContext("2d");
 
       let categories = {};
 
-      // Group expenses by category
+      // Group expenses
       expenses.forEach(exp => {
         categories[exp.category] = (categories[exp.category] || 0) + exp.amount;
       });
 
-      let x = 10;
+      const labels = Object.keys(categories);
+      const data = Object.values(categories);
 
-      for (let cat in categories) {
-        let height = categories[cat];
-
-        ctx.fillStyle = "blue";
-        ctx.fillRect(x, canvas.height - height, 40, height);
-
-        ctx.fillStyle = "black";
-        ctx.fillText(cat, x, canvas.height - 5);
-
-        x += 60;
+      // Destroy old chart before redraw
+      if (chart) {
+        chart.destroy();
       }
+
+      chart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: labels,
+          datasets: [{
+            label: "Spending (£)",
+            data: data,
+            backgroundColor: [
+              "#66bb6a",
+              "#42a5f5",
+              "#ef5350",
+              "#ffca28"
+            ]
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: value => "£" + value
+              }
+            }
+          }
+        }
+      });
     }
   </script>
 </body>
